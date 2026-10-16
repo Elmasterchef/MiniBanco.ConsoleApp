@@ -36,10 +36,12 @@ public class Conta
     }
     public void Depositar(decimal valor)
     {
-        if (valor <= 0)
-            throw new ArgumentException(
-                "O valor do depósito deve ser maior que zero.",
-                nameof(valor));
+        
+if (valor <= 0)
+    throw new ArgumentOutOfRangeException(
+        nameof(valor),
+        "O valor do depósito deve ser maior que zero.");
+
 
         Saldo += valor;
         _extrato.Add(new Transacao("Depósito", "Crédito", valor));
@@ -47,9 +49,11 @@ public class Conta
     public virtual void Sacar(decimal valor)
     {
         if (valor <= 0)
-            throw new ArgumentException(
-                "O valor do saque deve ser maior que zero.",
-                nameof(valor));
+            throw new ArgumentOutOfRangeException(
+                nameof(valor),
+                "O valor do saque deve ser maior que zero.");
+
+
 
         if (valor > Saldo)
             throw new InvalidOperationException(
