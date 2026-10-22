@@ -53,4 +53,34 @@ public string ClassificarConta(Conta conta)
     return "Conta em Risco";
 }
 
+public List<Transacao> ObterItensCriticos(Conta conta)
+{
+    List<Transacao> itensCriticos = new List<Transacao>();
+
+    foreach (Transacao transacao in conta.Extrato)
+    {
+        if (transacao.Tipo == "Tarifa")
+        {
+            itensCriticos.Add(transacao);
+        }
+    }
+
+    return itensCriticos;
+}
+
+public List<Transacao> ObterItensAtencao(Conta conta)
+{
+    List<Transacao> itensAtencao = new List<Transacao>();
+
+    foreach (Transacao transacao in conta.Extrato)
+    {
+        if (transacao.Tipo == "Saque")
+        {
+            itensAtencao.Add(transacao);
+        }
+    }
+
+    return itensAtencao;
+}
+
 }

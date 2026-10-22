@@ -2,6 +2,7 @@
 using MiniBanco.ConsoleApp.Models;
 using MiniBanco.ConsoleApp.Exceptions;
 using MiniBanco.ConsoleApp.Services;
+using System.Collections.Generic;
 using Xunit;
 
 namespace MiniBanco.Tests;
@@ -289,4 +290,36 @@ public void MotorAnalise_SemTransacoes_DeveClassificarComoContaEmRisco()
 
     Assert.Equal("Conta em Risco", motor.ClassificarConta(conta));
 }
+
+[Fact]
+public void MotorAnalise_DeveIdentificarTarifasComoItensCriticos()
+{
+    Conta conta = new ContaCorrente("Rafael", 301, 100m, 0m);
+    conta.Depositar(100m, "Depósito");
+    conta.Sacar(10m);
+    conta.AplicarFechamentoMensal();
+
+    MotorAnalise motor = new MotorAnalise();
+
+    List<Transacao> itensCriticos = motor.ObterItensCriticos(conta);
+
+    Assert.Single(itensCriticos);
+    Assert.Equal("Tarifa", itensCriticos[0].Tipo);
+}
+
+[Fact]
+public void MotorAnalise_DeveIdentificarSaquesComoItensDeAtencao()
+{
+    Conta conta = new Conta("Rafael", 302);
+    conta.Depositar(100m, "Depósito");
+    conta.Sacar(10m);
+
+    MotorAnalise motor = new MotorAnalise();
+
+    List<Transacao> itensAtencao = motor.ObterItensAtencao(conta);
+
+    Assert.Single(itensAtencao);
+    Assert.Equal("Saque", itensAtencao[0].Tipo);
+}
+
 }
