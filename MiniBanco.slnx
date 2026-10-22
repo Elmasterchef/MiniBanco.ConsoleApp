@@ -2,4 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/MiniBanco.ConsoleApp/MiniBanco.ConsoleApp.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MiniBanco.Tests/MiniBanco.Tests.csproj" />
+  </Folder>
 </Solution>
