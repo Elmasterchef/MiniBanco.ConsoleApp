@@ -33,7 +33,7 @@ while (executando)
             break;
 
         case "3":
-            Console.WriteLine("Funcionalidade de fechamento mensal em implementação.");
+            AplicarFechamentoMensal(contas);
             break;
 
         case "4":
@@ -264,4 +264,45 @@ static void RegistrarMovimentacao(List<Conta> contas)
     {
         Console.WriteLine($"Não foi possível realizar a operação: {ex.Message}");
     }
+}
+
+static void AplicarFechamentoMensal(List<Conta> contas)
+{
+    Console.WriteLine();
+    Console.WriteLine("=== FECHAMENTO MENSAL ===");
+
+    if (contas.Count == 0)
+    {
+        Console.WriteLine("Nenhuma conta cadastrada para fechamento.");
+        return;
+    }
+
+    foreach (Conta conta in contas)
+    {
+        try
+        {
+            decimal saldoAnterior = conta.Saldo;
+
+            conta.AplicarFechamentoMensal();
+
+            Console.WriteLine();
+            Console.WriteLine($"Conta: {conta.Numero} - {conta.Titular}");
+            Console.WriteLine($"Saldo anterior: {saldoAnterior:C}");
+            Console.WriteLine($"Saldo após fechamento: {conta.Saldo:C}");
+            Console.WriteLine("Fechamento aplicado com sucesso.");
+        }
+        catch (ArgumentException ex)
+        {
+            Console.WriteLine(
+                $"Erro na conta {conta.Numero}: {ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine(
+                $"Erro na conta {conta.Numero}: {ex.Message}");
+        }
+    }
+
+    Console.WriteLine();
+    Console.WriteLine("Processamento do fechamento mensal concluído.");
 }
