@@ -352,20 +352,43 @@ static void ExibirRelatorioContas(List<Conta> contas)
                 $"Limite mensal de saques: {contaSalario.LimiteSaquesMensais}");
         }
 
-        Console.WriteLine($"Transações registradas: {conta.Extrato.Count}");
-        int pontosObtidos = motor.CalcularPontosObtidos(conta);
-int pontuacaoMaxima = motor.CalcularPontuacaoMaxima(conta);
-double percentualSaude = motor.CalcularPercentualSaude(conta);
-string classificacao = motor.ClassificarConta(conta);
+            Console.WriteLine($"Transações registradas: {conta.Extrato.Count}");
+            
+Console.WriteLine();
+Console.WriteLine("EXTRATO DE TRANSAÇÕES");
 
-Console.WriteLine($"Pontos obtidos: {pontosObtidos}");
-Console.WriteLine($"Pontuação máxima: {pontuacaoMaxima}");
-Console.WriteLine($"Saúde financeira: {percentualSaude:F2}%");
-Console.WriteLine($"Classificação: {classificacao}");
+if (conta.Extrato.Count == 0)
+{
+    Console.WriteLine("Nenhuma transação registrada.");
+}
+else
+{
+    foreach (Transacao transacao in conta.Extrato)
+    {
+        Console.WriteLine("----------------------------------");
+        Console.WriteLine($"Data: {transacao.Data:dd/MM/yyyy HH:mm:ss}");
+        Console.WriteLine($"Descrição: {transacao.Descricao}");
+        Console.WriteLine($"Tipo: {transacao.Tipo}");
+        Console.WriteLine($"Valor: {transacao.Valor:C}");
+        Console.WriteLine($"Pontos: {transacao.Pontos}");
+    }
+}
+
+Console.WriteLine("----------------------------------");
+
+        int pontosObtidos = motor.CalcularPontosObtidos(conta);
+        int pontuacaoMaxima = motor.CalcularPontuacaoMaxima(conta);
+        double percentualSaude = motor.CalcularPercentualSaude(conta);
+        string classificacao = motor.ClassificarConta(conta);
+
+            Console.WriteLine($"Pontos obtidos: {pontosObtidos}");
+            Console.WriteLine($"Pontuação máxima: {pontuacaoMaxima}");
+            Console.WriteLine($"Saúde financeira: {percentualSaude:F2}%");
+            Console.WriteLine($"Classificação: {classificacao}");
     }
 
-    Console.WriteLine();
-    Console.WriteLine("==================================");
-    Console.WriteLine($"Total de contas: {contas.Count}");
-    Console.WriteLine("==================================");
+            Console.WriteLine();
+            Console.WriteLine("==================================");
+            Console.WriteLine($"Total de contas: {contas.Count}");
+            Console.WriteLine("==================================");
 }
