@@ -1,5 +1,6 @@
-
+using MiniBanco.ConsoleApp.Exceptions;
 namespace MiniBanco.ConsoleApp.Models;
+
 
 public class ContaCorrente : Conta
 {
@@ -28,8 +29,8 @@ public class ContaCorrente : Conta
                 "O saque deve ser maior que zero.");
 
         if (valor > Saldo + LimiteChequeEspecial)
-            throw new InvalidOperationException(
-                "Saldo e limite de cheque especial insuficientes.");
+    throw new SaldoInsuficienteException(
+        "Saldo e limite de cheque especial insuficientes.");
 
         Saldo -= valor;
 

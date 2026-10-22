@@ -2,6 +2,7 @@
 using System.Globalization;
 using MiniBanco.ConsoleApp.Models;
 using MiniBanco.ConsoleApp.Services;
+using MiniBanco.ConsoleApp.Exceptions;
 
 List<Conta> contas = new();
 bool executando = true;
@@ -257,6 +258,11 @@ static void RegistrarMovimentacao(List<Conta> contas)
 
         Console.WriteLine($"Saldo atual: {contaEncontrada.Saldo:C}");
     }
+    
+    catch (SaldoInsuficienteException ex)
+    {
+        Console.WriteLine($"Saque não realizado: {ex.Message}");
+    }
     catch (ArgumentException ex)
     {
         Console.WriteLine($"Não foi possível realizar a operação: {ex.Message}");
@@ -265,6 +271,7 @@ static void RegistrarMovimentacao(List<Conta> contas)
     {
         Console.WriteLine($"Não foi possível realizar a operação: {ex.Message}");
     }
+
 }
 
 static void AplicarFechamentoMensal(List<Conta> contas)

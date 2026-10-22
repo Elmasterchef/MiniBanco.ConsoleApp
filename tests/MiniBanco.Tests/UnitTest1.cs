@@ -145,8 +145,7 @@ public void ContaCorrente_SacarAcimaDoLimite_DeveLancarExcecao()
         limiteChequeEspecial: 200m);
 
     // Act e Assert
-    Assert.Throws<InvalidOperationException>(
-        () => conta.Sacar(301m));
+    Assert.Throws<SaldoInsuficienteException>(() => conta.Sacar(301m));
 
     Assert.Equal(100m, conta.Saldo);
     Assert.Empty(conta.Extrato);
