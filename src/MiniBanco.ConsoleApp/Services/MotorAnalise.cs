@@ -35,4 +35,22 @@ public class MotorAnalise
 
         return (double)pontosObtidos / pontuacaoMaxima * 100;
     }
+    
+public string ClassificarConta(Conta conta)
+{
+    double percentual = CalcularPercentualSaude(conta);
+
+    if (percentual >= 90)
+    {
+        return "Conta Saudável";
+    }
+
+    if (percentual >= 60)
+    {
+        return "Conta em Atenção";
+    }
+
+    return "Conta em Risco";
+}
+
 }

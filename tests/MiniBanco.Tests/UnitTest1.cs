@@ -250,13 +250,43 @@ public void MotorAnalise_DeveCalcularPontuacaoMaxima()
     Assert.Equal(20, motor.CalcularPontuacaoMaxima(conta));
 }
 
+
 [Fact]
-public void MotorAnalise_SemTransacoes_DeveRetornarPercentualZero()
+public void MotorAnalise_PercentualAlto_DeveClassificarComoContaSaudavel()
 {
-    Conta conta = new Conta("Rafael", 101);
+    Conta conta = new Conta("Rafael", 201);
+
+    for (int i = 0; i < 9; i++)
+    {
+        conta.Depositar(10m, $"Depósito {i + 1}");
+    }
+
+    conta.Sacar(10m);
+
     MotorAnalise motor = new MotorAnalise();
 
-    Assert.Equal(0, motor.CalcularPercentualSaude(conta));
+    Assert.Equal("Conta Saudável", motor.ClassificarConta(conta));
 }
 
+[Fact]
+public void MotorAnalise_PercentualIntermediario_DeveClassificarComoContaEmAtencao()
+{
+    Conta conta = new Conta("Rafael", 202);
+    conta.Depositar(100m, "Depósito");
+    conta.Sacar(10m);
+    conta.Sacar(10m);
+
+    MotorAnalise motor = new MotorAnalise();
+
+    Assert.Equal("Conta em Atenção", motor.ClassificarConta(conta));
+}
+
+[Fact]
+public void MotorAnalise_SemTransacoes_DeveClassificarComoContaEmRisco()
+{
+    Conta conta = new Conta("Rafael", 203);
+    MotorAnalise motor = new MotorAnalise();
+
+    Assert.Equal("Conta em Risco", motor.ClassificarConta(conta));
+}
 }
