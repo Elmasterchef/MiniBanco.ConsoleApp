@@ -6,11 +6,11 @@ public class ContaCorrente : Conta
     public decimal LimiteChequeEspecial { get; }
 
     public ContaCorrente(
-        string titular,
-        string numero,
-        decimal saldoInicial = 0,
-        decimal limiteChequeEspecial = 0)
-        : base(titular, numero, saldoInicial)
+    string titular,
+    int numero,
+    decimal saldoInicial = 0,
+    decimal limiteChequeEspecial = 0)
+    : base(titular, numero, saldoInicial)
     {
         if (limiteChequeEspecial < 0)
             throw new ArgumentOutOfRangeException(
@@ -33,12 +33,19 @@ public class ContaCorrente : Conta
 
         Saldo -= valor;
 
-        RegistrarTransacao(
-            new Transacao("Saque em conta corrente", "Saque", valor));
+      RegistrarTransacao(
+    "Saque em conta corrente",
+    "Saque",
+    valor);
     }
 
     public override void AplicarFechamentoMensal()
-    {
-        
-    }
+{
+    Saldo -= 10m;
+
+    RegistrarTransacao(
+        "Tarifa de manutenção mensal",
+        "Tarifa",
+        10m);
+}
 }

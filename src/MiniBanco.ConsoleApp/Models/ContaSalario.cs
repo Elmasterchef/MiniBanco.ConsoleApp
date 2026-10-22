@@ -5,14 +5,15 @@ public class ContaSalario : Conta
 {
     public string Empregador { get; }
     public int LimiteSaquesMensais { get; }
+    private int _saquesRealizadosNoMes;
 
     public ContaSalario(
-        string titular,
-        string numero,
-        string empregador,
-        decimal saldoInicial = 0,
-        int limiteSaquesMensais = 5)
-        : base(titular, numero, saldoInicial)
+    string titular,
+    int numero,
+    decimal saldoInicial = 0,
+    string empregador = "",
+    int limiteSaquesMensais = 5)
+    : base(titular, numero, saldoInicial)
     {
         if (string.IsNullOrWhiteSpace(empregador))
             throw new ArgumentException(
@@ -28,15 +29,36 @@ public class ContaSalario : Conta
         LimiteSaquesMensais = limiteSaquesMensais;
     }
 
-    public override void Sacar(decimal valor)
+    
+public override void Sacar(decimal valor)
+{
+    if (valor <= 0)
+        throw new ArgumentException(
+            "O valor do saque deve ser maior que zero.",
+            nameof(valor));
+
+    if (valor > Saldo)
+        throw new MiniBanco.ConsoleApp.Exceptions.SaldoInsuficienteException(
+            "Saldo insuficiente para realizar o saque.");
+
+    base.Sacar(valor);
+
+    _saquesRealizadosNoMes++;
+
+    if (_saquesRealizadosNoMes > LimiteSaquesMensais)
     {
-        // A validação do limite mensal será implementada
-        // na próxima etapa, junto com o controle dos saques.
-        base.Sacar(valor);
+        Saldo -= 5m;
+
+        RegistrarTransacao(
+            "Tarifa por exceder o limite mensal de saques",
+            "Tarifa",
+            5m);
+    }
     }
 
-    public override void AplicarFechamentoMensal()
+
+public override void AplicarFechamentoMensal()
     {
-        // Implementaremos conforme as regras do enunciado.
+        _saquesRealizadosNoMes = 0;
     }
 }
