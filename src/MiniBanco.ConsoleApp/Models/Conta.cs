@@ -27,11 +27,6 @@ public class Conta
                 "O número da conta deve ser maior que zero.",
                 nameof(numero));
 
-        if (saldoInicial < 0)
-            throw new ArgumentException(
-                "O saldo inicial não pode ser negativo.",
-                nameof(saldoInicial));
-
         Titular = titular;
         Numero = numero;
         Saldo = saldoInicial;

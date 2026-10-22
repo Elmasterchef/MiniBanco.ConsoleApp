@@ -15,6 +15,10 @@ public class ContaSalario : Conta
     int limiteSaquesMensais = 5)
     : base(titular, numero, saldoInicial)
     {
+        if (saldoInicial < 0)
+    throw new ArgumentOutOfRangeException(
+        nameof(saldoInicial),
+        "O saldo inicial da conta-salário não pode ser negativo.");
         if (string.IsNullOrWhiteSpace(empregador))
             throw new ArgumentException(
                 "O empregador é obrigatório.",

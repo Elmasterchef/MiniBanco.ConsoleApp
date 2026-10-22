@@ -411,5 +411,38 @@ public void MotorAnalise_ContaEmRisco_DeveRecomendarAnaliseDeCredito()
         "Realizar uma análise de crédito.",
         recomendacoes);
 }
+[Fact]
+public void ContaCorrente_ComSaldoNegativo_DevePermitirReconstrucao()
+{
+    var conta = new ContaCorrente(
+        titular: "Rafael",
+        numero: 999,
+        saldoInicial: -150m,
+        limiteChequeEspecial: 200m);
+
+    Assert.Equal(-150m, conta.Saldo);
+}
+[Fact]
+public void ContaPoupanca_ComSaldoInicialNegativo_DeveLancarExcecao()
+{
+    Assert.Throws<ArgumentOutOfRangeException>(() =>
+        new ContaPoupanca(
+            titular: "Rafael",
+            numero: 998,
+            saldoInicial: -100m,
+            taxaRendimentoMensal: 1.0,
+            diaAniversario: 10));
+}
+[Fact]
+public void ContaSalario_ComSaldoInicialNegativo_DeveLancarExcecao()
+{
+    Assert.Throws<ArgumentOutOfRangeException>(() =>
+        new ContaSalario(
+            titular: "Rafael",
+            numero: 997,
+            saldoInicial: -100m,
+            empregador: "Empresa Teste",
+            limiteSaquesMensais: 5));
+}
 
 }
