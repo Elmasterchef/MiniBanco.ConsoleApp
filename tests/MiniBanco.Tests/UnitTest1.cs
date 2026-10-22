@@ -322,4 +322,71 @@ public void MotorAnalise_DeveIdentificarSaquesComoItensDeAtencao()
     Assert.Equal("Saque", itensAtencao[0].Tipo);
 }
 
+[Fact]
+public void MotorAnalise_ContaSaudavel_DeveRecomendarInvestimentos()
+{
+    Conta conta = new Conta("Rafael", 401);
+
+    for (int i = 0; i < 9; i++)
+    {
+        conta.Depositar(10m, $"Depósito {i + 1}");
+    }
+
+    conta.Sacar(10m);
+
+    MotorAnalise motor = new MotorAnalise();
+
+    List<string> recomendacoes = motor.GerarRecomendacoes(conta);
+
+    Assert.Contains(
+        "Oferecer opções de investimento.",
+        recomendacoes);
+
+    Assert.Contains(
+        "Avaliar a possibilidade de aumento de limite.",
+        recomendacoes);
+}
+
+[Fact]
+public void MotorAnalise_ContaEmAtencao_DeveRecomendarOrientacaoFinanceira()
+{
+    Conta conta = new Conta("Rafael", 402);
+    conta.Depositar(100m, "Depósito");
+    conta.Sacar(10m);
+    conta.Sacar(10m);
+
+    MotorAnalise motor = new MotorAnalise();
+
+    List<string> recomendacoes = motor.GerarRecomendacoes(conta);
+
+    Assert.Contains(
+        "Oferecer orientação financeira.",
+        recomendacoes);
+
+    Assert.Contains(
+        "Revisar as tarifas cobradas.",
+        recomendacoes);
+
+    Assert.Contains(
+        "Revisar a frequência dos saques e avaliar alternativas para movimentar a conta.",
+        recomendacoes);
+}
+
+[Fact]
+public void MotorAnalise_ContaEmRisco_DeveRecomendarAnaliseDeCredito()
+{
+    Conta conta = new Conta("Rafael", 403);
+    MotorAnalise motor = new MotorAnalise();
+
+    List<string> recomendacoes = motor.GerarRecomendacoes(conta);
+
+    Assert.Contains(
+        "Bloquear aumento de limite.",
+        recomendacoes);
+
+    Assert.Contains(
+        "Realizar uma análise de crédito.",
+        recomendacoes);
+}
+
 }

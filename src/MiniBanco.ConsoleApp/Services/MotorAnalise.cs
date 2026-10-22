@@ -83,4 +83,49 @@ public List<Transacao> ObterItensAtencao(Conta conta)
     return itensAtencao;
 }
 
+public List<string> GerarRecomendacoes(Conta conta)
+{
+    List<string> recomendacoes = new List<string>();
+
+    string classificacao = ClassificarConta(conta);
+    List<Transacao> itensCriticos = ObterItensCriticos(conta);
+    List<Transacao> itensAtencao = ObterItensAtencao(conta);
+
+    if (classificacao == "Conta Saudável")
+    {
+        recomendacoes.Add("Oferecer opções de investimento.");
+        recomendacoes.Add("Avaliar a possibilidade de aumento de limite.");
+    }
+    else if (classificacao == "Conta em Atenção")
+    {
+        recomendacoes.Add("Entrar em contato com a gestão da conta.");
+        recomendacoes.Add("Oferecer orientação financeira.");
+        recomendacoes.Add("Revisar as tarifas cobradas.");
+    }
+    else
+    {
+        recomendacoes.Add("Bloquear aumento de limite.");
+        recomendacoes.Add("Realizar uma análise de crédito.");
+    }
+
+    if (itensCriticos.Count > 0)
+    {
+        recomendacoes.Add(
+            "Analisar as tarifas registradas e avaliar como reduzir esses custos.");
+    }
+
+    if (itensAtencao.Count > 0)
+    {
+        recomendacoes.Add(
+            "Revisar a frequência dos saques e avaliar alternativas para movimentar a conta.");
+    }
+
+    if (recomendacoes.Count == 0)
+    {
+        recomendacoes.Add("Nenhuma recomendação disponível.");
+    }
+
+    return recomendacoes;
+}
+
 }
