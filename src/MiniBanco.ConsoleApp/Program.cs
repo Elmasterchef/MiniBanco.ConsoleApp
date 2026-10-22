@@ -385,6 +385,53 @@ Console.WriteLine("----------------------------------");
             Console.WriteLine($"Pontuação máxima: {pontuacaoMaxima}");
             Console.WriteLine($"Saúde financeira: {percentualSaude:F2}%");
             Console.WriteLine($"Classificação: {classificacao}");
+            
+Console.WriteLine();
+Console.WriteLine("ITENS CRÍTICOS — TARIFAS");
+
+List<Transacao> itensCriticos = motor.ObterItensCriticos(conta);
+
+if (itensCriticos.Count == 0)
+{
+    Console.WriteLine("Nenhuma tarifa registrada.");
+}
+else
+{
+    foreach (Transacao transacao in itensCriticos)
+    {
+        Console.WriteLine(
+            $"{transacao.Descricao}: {transacao.Valor:C}");
+    }
+}
+
+Console.WriteLine();
+Console.WriteLine("ITENS DE ATENÇÃO — SAQUES");
+
+List<Transacao> itensAtencao = motor.ObterItensAtencao(conta);
+
+if (itensAtencao.Count == 0)
+{
+    Console.WriteLine("Nenhum saque registrado.");
+}
+else
+{
+    foreach (Transacao transacao in itensAtencao)
+    {
+        Console.WriteLine(
+            $"{transacao.Descricao}: {transacao.Valor:C}");
+    }
+}
+
+Console.WriteLine();
+Console.WriteLine("RECOMENDAÇÕES FINANCEIRAS");
+
+List<string> recomendacoes = motor.GerarRecomendacoes(conta);
+
+foreach (string recomendacao in recomendacoes)
+{
+    Console.WriteLine($"- {recomendacao}");
+}
+
     }
 
             Console.WriteLine();
