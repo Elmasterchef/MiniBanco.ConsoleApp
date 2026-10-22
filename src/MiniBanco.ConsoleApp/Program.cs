@@ -1,6 +1,7 @@
 ﻿
 using System.Globalization;
 using MiniBanco.ConsoleApp.Models;
+using MiniBanco.ConsoleApp.Services;
 
 List<Conta> contas = new();
 bool executando = true;
@@ -319,6 +320,7 @@ static void ExibirRelatorioContas(List<Conta> contas)
         Console.WriteLine("Nenhuma conta cadastrada.");
         return;
     }
+    MotorAnalise motor = new MotorAnalise();
 
     foreach (Conta conta in contas)
     {
@@ -351,6 +353,15 @@ static void ExibirRelatorioContas(List<Conta> contas)
         }
 
         Console.WriteLine($"Transações registradas: {conta.Extrato.Count}");
+        int pontosObtidos = motor.CalcularPontosObtidos(conta);
+int pontuacaoMaxima = motor.CalcularPontuacaoMaxima(conta);
+double percentualSaude = motor.CalcularPercentualSaude(conta);
+string classificacao = motor.ClassificarConta(conta);
+
+Console.WriteLine($"Pontos obtidos: {pontosObtidos}");
+Console.WriteLine($"Pontuação máxima: {pontuacaoMaxima}");
+Console.WriteLine($"Saúde financeira: {percentualSaude:F2}%");
+Console.WriteLine($"Classificação: {classificacao}");
     }
 
     Console.WriteLine();
