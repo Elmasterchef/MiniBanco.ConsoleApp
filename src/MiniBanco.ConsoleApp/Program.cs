@@ -29,7 +29,7 @@ while (executando)
             break;
 
         case "2":
-            Console.WriteLine("Funcionalidade de movimentação em implementação.");
+            RegistrarMovimentacao(contas);
             break;
 
         case "3":
@@ -173,5 +173,95 @@ static void AbrirConta(List<Conta> contas)
     catch (FormatException ex)
     {
         Console.WriteLine($"Formato de dado inválido: {ex.Message}");
+    }
+    
+}
+
+    
+static void RegistrarMovimentacao(List<Conta> contas)
+{
+    Console.WriteLine();
+    Console.WriteLine("=== REGISTRAR MOVIMENTAÇÃO ===");
+
+    if (contas.Count == 0)
+    {
+        Console.WriteLine("Nenhuma conta cadastrada. Abra uma conta primeiro.");
+        return;
+    }
+
+    Console.Write("Número da conta: ");
+
+    if (!int.TryParse(Console.ReadLine(), out int numero))
+    {
+        Console.WriteLine("Número da conta inválido.");
+        return;
+    }
+
+    Conta? contaEncontrada = null;
+
+    foreach (Conta conta in contas)
+    {
+        if (conta.Numero == numero)
+        {
+            contaEncontrada = conta;
+            break;
+        }
+    }
+
+    if (contaEncontrada is null)
+    {
+        Console.WriteLine("Conta não encontrada.");
+        return;
+    }
+
+    Console.WriteLine("1 - Depósito");
+    Console.WriteLine("2 - Saque");
+    Console.Write("Escolha a operação: ");
+
+    string? operacao = Console.ReadLine();
+
+    if (operacao != "1" && operacao != "2")
+    {
+        Console.WriteLine("Operação inválida.");
+        return;
+    }
+
+    Console.Write("Valor da movimentação: ");
+
+    if (!decimal.TryParse(
+            Console.ReadLine(),
+            NumberStyles.Number,
+            CultureInfo.GetCultureInfo("pt-BR"),
+            out decimal valor))
+    {
+        Console.WriteLine("Valor inválido. Exemplo: 150,50.");
+        return;
+    }
+
+    try
+    {
+        if (operacao == "1")
+        {
+            Console.Write("Descrição do depósito: ");
+            string descricao = Console.ReadLine() ?? string.Empty;
+
+            contaEncontrada.Depositar(valor, descricao);
+            Console.WriteLine("Depósito realizado com sucesso!");
+        }
+        else
+        {
+            contaEncontrada.Sacar(valor);
+            Console.WriteLine("Saque realizado com sucesso!");
+        }
+
+        Console.WriteLine($"Saldo atual: {contaEncontrada.Saldo:C}");
+    }
+    catch (ArgumentException ex)
+    {
+        Console.WriteLine($"Não foi possível realizar a operação: {ex.Message}");
+    }
+    catch (InvalidOperationException ex)
+    {
+        Console.WriteLine($"Não foi possível realizar a operação: {ex.Message}");
     }
 }
