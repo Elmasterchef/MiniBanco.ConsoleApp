@@ -1,6 +1,7 @@
 ﻿
 using MiniBanco.ConsoleApp.Models;
 using MiniBanco.ConsoleApp.Exceptions;
+using MiniBanco.ConsoleApp.Services;
 using Xunit;
 
 namespace MiniBanco.Tests;
@@ -224,5 +225,38 @@ public void Transacao_Tarifa_DeveAtribuirZeroPontos()
     Assert.Equal(0, transacao.Pontos);
 }
 
+
+[Fact]
+public void MotorAnalise_DeveCalcularPontosObtidos()
+{
+    Conta conta = new Conta("Rafael", 101);
+    conta.Depositar(100m, "Depósito");
+    conta.Sacar(20m);
+
+    MotorAnalise motor = new MotorAnalise();
+
+    Assert.Equal(15, motor.CalcularPontosObtidos(conta));
+}
+
+[Fact]
+public void MotorAnalise_DeveCalcularPontuacaoMaxima()
+{
+    Conta conta = new Conta("Rafael", 101);
+    conta.Depositar(100m, "Depósito");
+    conta.Sacar(20m);
+
+    MotorAnalise motor = new MotorAnalise();
+
+    Assert.Equal(20, motor.CalcularPontuacaoMaxima(conta));
+}
+
+[Fact]
+public void MotorAnalise_SemTransacoes_DeveRetornarPercentualZero()
+{
+    Conta conta = new Conta("Rafael", 101);
+    MotorAnalise motor = new MotorAnalise();
+
+    Assert.Equal(0, motor.CalcularPercentualSaude(conta));
+}
 
 }
