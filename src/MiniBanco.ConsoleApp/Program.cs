@@ -37,7 +37,7 @@ while (executando)
             break;
 
         case "4":
-            Console.WriteLine($"Contas cadastradas: {contas.Count}");
+            ExibirRelatorioContas(contas);
             break;
 
         case "0":
@@ -305,4 +305,56 @@ static void AplicarFechamentoMensal(List<Conta> contas)
 
     Console.WriteLine();
     Console.WriteLine("Processamento do fechamento mensal concluído.");
+}
+
+static void ExibirRelatorioContas(List<Conta> contas)
+{
+    Console.WriteLine();
+    Console.WriteLine("==================================");
+    Console.WriteLine("       RELATÓRIO DE CONTAS");
+    Console.WriteLine("==================================");
+
+    if (contas.Count == 0)
+    {
+        Console.WriteLine("Nenhuma conta cadastrada.");
+        return;
+    }
+
+    foreach (Conta conta in contas)
+    {
+        Console.WriteLine();
+        Console.WriteLine("----------------------------------");
+        Console.WriteLine($"Titular: {conta.Titular}");
+        Console.WriteLine($"Número: {conta.Numero}");
+        Console.WriteLine($"Saldo atual: {conta.Saldo:C}");
+
+        if (conta is ContaCorrente contaCorrente)
+        {
+            Console.WriteLine("Tipo: Conta Corrente");
+            Console.WriteLine(
+                $"Limite do cheque especial: {contaCorrente.LimiteChequeEspecial:C}");
+        }
+        else if (conta is ContaPoupanca contaPoupanca)
+        {
+            Console.WriteLine("Tipo: Conta Poupança");
+            Console.WriteLine(
+                $"Taxa de rendimento mensal: {contaPoupanca.TaxaRendimentoMensal}%");
+            Console.WriteLine(
+                $"Dia do aniversário: {contaPoupanca.DiaAniversario}");
+        }
+        else if (conta is ContaSalario contaSalario)
+        {
+            Console.WriteLine("Tipo: Conta Salário");
+            Console.WriteLine($"Empregador: {contaSalario.Empregador}");
+            Console.WriteLine(
+                $"Limite mensal de saques: {contaSalario.LimiteSaquesMensais}");
+        }
+
+        Console.WriteLine($"Transações registradas: {conta.Extrato.Count}");
+    }
+
+    Console.WriteLine();
+    Console.WriteLine("==================================");
+    Console.WriteLine($"Total de contas: {contas.Count}");
+    Console.WriteLine("==================================");
 }
