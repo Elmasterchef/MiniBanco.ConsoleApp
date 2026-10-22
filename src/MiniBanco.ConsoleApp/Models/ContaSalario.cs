@@ -45,7 +45,10 @@ public override void Sacar(decimal valor)
 
     _saquesRealizadosNoMes++;
 
-    if (_saquesRealizadosNoMes > LimiteSaquesMensais)
+    
+if (_saquesRealizadosNoMes > LimiteSaquesMensais)
+{
+    if (Saldo >= 5m)
     {
         Saldo -= 5m;
 
@@ -54,7 +57,9 @@ public override void Sacar(decimal valor)
             "Tarifa",
             5m);
     }
-    }
+}
+
+}
 
 
 public override void AplicarFechamentoMensal()

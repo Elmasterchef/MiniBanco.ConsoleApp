@@ -176,6 +176,30 @@ public void ContaSalario_SaqueAcimaDoLimite_DeveCobrarTarifa()
 }
 
 [Fact]
+public void ContaSalario_SaldoInsuficienteParaTarifa_NaoDeveFicarNegativo()
+{
+    // Arrange
+    var conta = new ContaSalario(
+        titular: "Rafael",
+        numero: 41,
+        saldoInicial: 12m,
+        empregador: "Empresa Teste",
+        limiteSaquesMensais: 1);
+
+    // Act
+    conta.Sacar(10m);
+    conta.Sacar(1m);
+
+    // Assert
+    Assert.Equal(1m, conta.Saldo);
+    Assert.Equal(2, conta.Extrato.Count);
+    Assert.DoesNotContain(
+        conta.Extrato,
+        transacao => transacao.Tipo == "Tarifa");
+}
+
+
+[Fact]
 public void ContaSalario_FechamentoMensal_DeveReiniciarContagemDeSaques()
 {
     // Arrange
