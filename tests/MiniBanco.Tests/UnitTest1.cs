@@ -200,5 +200,29 @@ public void ContaSalario_FechamentoMensal_DeveReiniciarContagemDeSaques()
     Assert.Equal(10m, conta.Extrato[3].Valor);
 }
 
+[Fact]
+public void Transacao_Deposito_DeveAtribuir10Pontos()
+{
+    Transacao transacao = new Transacao("Depósito inicial", "Deposito", 100m);
+
+    Assert.Equal(10, transacao.Pontos);
+}
+
+[Fact]
+public void Transacao_Saque_DeveAtribuir5Pontos()
+{
+    Transacao transacao = new Transacao("Saque", "Saque", 50m);
+
+    Assert.Equal(5, transacao.Pontos);
+}
+
+[Fact]
+public void Transacao_Tarifa_DeveAtribuirZeroPontos()
+{
+    Transacao transacao = new Transacao("Tarifa mensal", "Tarifa", 10m);
+
+    Assert.Equal(0, transacao.Pontos);
+}
+
 
 }

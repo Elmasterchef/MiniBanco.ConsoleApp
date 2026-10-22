@@ -37,4 +37,17 @@ public class Transacao
         Valor = valor;
         Data = DateTime.Now;
     }
+    public int Pontos
+{
+    get
+    {
+        if (Tipo == "Deposito")
+            return 10;
+
+        if (Tipo == "Saque")
+            return 5;
+
+        return 0;
+    }
+}
 }
