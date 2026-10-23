@@ -5,6 +5,7 @@ using MiniBanco.ConsoleApp.Services;
 using MiniBanco.ConsoleApp.Exceptions;
 using MiniBanco.ConsoleApp.Data;
 using MiniBanco.ConsoleApp.Repositories;
+using Npgsql;
 
 await using var dataSource = ConexaoBanco.CriarDataSource();
 var repositorio = new ContaRepository(dataSource);
@@ -52,7 +53,7 @@ while (executando)
     switch (opcao)
     {
         case "1":
-            AbrirConta(contas);
+            await AbrirContaAsync(contas, repositorio);
             break;
 
         case "2":
@@ -85,7 +86,9 @@ while (executando)
     }
 }
 
-static void AbrirConta(List<Conta> contas)
+static async Task AbrirContaAsync(
+    List<Conta> contas,
+    ContaRepository repositorio)
 {
     Console.WriteLine();
     Console.WriteLine("=== ABERTURA DE CONTA ===");
@@ -190,6 +193,7 @@ static void AbrirConta(List<Conta> contas)
                 return;
         }
 
+        await repositorio.SalvarAsync(conta);
         contas.Add(conta);
         Console.WriteLine("Conta cadastrada com sucesso!");
     }
@@ -201,7 +205,14 @@ static void AbrirConta(List<Conta> contas)
     {
         Console.WriteLine($"Formato de dado inválido: {ex.Message}");
     }
-    
+    catch (PostgresException ex) when (ex.SqlState == "23505")
+    {
+        Console.WriteLine("Já existe uma conta cadastrada com esse número.");
+    }
+    catch (PostgresException ex)
+    {
+        Console.WriteLine($"Erro ao salvar a conta no PostgreSQL: {ex.MessageText}");
+    }
 }
 
     
