@@ -5,20 +5,24 @@ public class ContaSalario : Conta
 {
     public string Empregador { get; }
     public int LimiteSaquesMensais { get; }
-    private int _saquesRealizadosNoMes;
+public int SaquesRealizadosNoMes => _saquesRealizadosNoMes;
+
+private int _saquesRealizadosNoMes;
 
     public ContaSalario(
     string titular,
     int numero,
     decimal saldoInicial = 0,
     string empregador = "",
-    int limiteSaquesMensais = 5)
+    int limiteSaquesMensais = 5,
+    int saquesRealizadosNoMes = 0)
     : base(titular, numero, saldoInicial)
     {
         if (saldoInicial < 0)
     throw new ArgumentOutOfRangeException(
         nameof(saldoInicial),
         "O saldo inicial da conta-salário não pode ser negativo.");
+
         if (string.IsNullOrWhiteSpace(empregador))
             throw new ArgumentException(
                 "O empregador é obrigatório.",
@@ -28,9 +32,14 @@ public class ContaSalario : Conta
             throw new ArgumentOutOfRangeException(
                 nameof(limiteSaquesMensais),
                 "O limite de saques não pode ser negativo.");
+        if (saquesRealizadosNoMes < 0)
+    throw new ArgumentOutOfRangeException(
+        nameof(saquesRealizadosNoMes),
+        "A quantidade de saques realizados não pode ser negativa.");
 
         Empregador = empregador;
         LimiteSaquesMensais = limiteSaquesMensais;
+        _saquesRealizadosNoMes = saquesRealizadosNoMes;
     }
 
     

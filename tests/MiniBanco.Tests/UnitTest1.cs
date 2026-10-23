@@ -444,5 +444,18 @@ public void ContaSalario_ComSaldoInicialNegativo_DeveLancarExcecao()
             empregador: "Empresa Teste",
             limiteSaquesMensais: 5));
 }
+[Fact]
+public void ContaSalario_DeveRestaurarContadorDeSaquesMensais()
+{
+    var conta = new ContaSalario(
+        titular: "Rafael",
+        numero: 996,
+        saldoInicial: 100m,
+        empregador: "Empresa Teste",
+        limiteSaquesMensais: 5,
+        saquesRealizadosNoMes: 3);
+
+    Assert.Equal(3, conta.SaquesRealizadosNoMes);
+}
 
 }
