@@ -3,10 +3,35 @@ using System.Globalization;
 using MiniBanco.ConsoleApp.Models;
 using MiniBanco.ConsoleApp.Services;
 using MiniBanco.ConsoleApp.Exceptions;
+using MiniBanco.ConsoleApp.Data;
+using MiniBanco.ConsoleApp.Repositories;
 
-List<Conta> contas = new();
+await using var dataSource = ConexaoBanco.CriarDataSource();
+var repositorio = new ContaRepository(dataSource);
+
+List<Conta> contas;
+
+try
+{
+    bool bancoDisponivel = await repositorio.BancoDisponivelAsync();
+
+    if (!bancoDisponivel)
+    {
+        Console.WriteLine("Não foi possível confirmar a conexão com o banco.");
+        return;
+    }
+
+    contas = await repositorio.ObterTodasAsync();
+    Console.WriteLine($"Contas carregadas do PostgreSQL: {contas.Count}");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Erro ao conectar ao PostgreSQL: {ex.Message}");
+    Console.WriteLine("Verifique o banco e as variáveis de ambiente.");
+    return;
+}
+
 bool executando = true;
-
 while (executando)
 {
     Console.Clear();
