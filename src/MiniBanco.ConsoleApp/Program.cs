@@ -211,7 +211,7 @@ static async Task AbrirContaAsync(
     }
     catch (PostgresException ex)
     {
-        Console.WriteLine($"Erro ao salvar a conta no PostgreSQL: {ex.MessageText}");
+        Console.WriteLine($"Erro PostgreSQL completo: {ex}");
     }
 }
 

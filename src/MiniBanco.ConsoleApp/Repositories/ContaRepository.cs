@@ -116,7 +116,7 @@ public sealed class ContaRepository
         int? diaAniversario = null;
         string? empregador = null;
         int? limiteSaquesMensais = null;
-        int? saquesRealizadosNoMes = null;
+        int saquesRealizadosNoMes = 0;
 
         switch (conta)
         {
@@ -150,7 +150,7 @@ public sealed class ContaRepository
             await conexao.BeginTransactionAsync(cancellationToken);
 
         const string sql = """
-            INSERT INTO contas (
+            INSERT INTO public.contas (
                 numero,
                 titular,
                 tipo,
@@ -190,7 +190,6 @@ public sealed class ContaRepository
         comando.Parameters.AddWithValue(
             "taxa_rendimento_mensal",
             (object?)taxaRendimentoMensal ?? DBNull.Value);
-
         comando.Parameters.AddWithValue(
             "dia_aniversario",
             (object?)diaAniversario ?? DBNull.Value);
@@ -204,9 +203,9 @@ public sealed class ContaRepository
             (object?)limiteSaquesMensais ?? DBNull.Value);
         comando.Parameters.AddWithValue(
             "saques_realizados_no_mes",
-            (object?)saquesRealizadosNoMes ?? DBNull.Value);
+            saquesRealizadosNoMes);
+            await comando.ExecuteNonQueryAsync(cancellationToken);
+            await transacao.CommitAsync(cancellationToken);
 
-        await comando.ExecuteNonQueryAsync(cancellationToken);
-        await transacao.CommitAsync(cancellationToken);
     }
 }
