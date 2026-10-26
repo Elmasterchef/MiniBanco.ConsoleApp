@@ -85,4 +85,13 @@ public virtual void AplicarFechamentoMensal()
         Transacao transacao = new Transacao(descricao, tipo, valor);
         _extrato.Add(transacao);
     }
+    public void RestaurarTransacao(
+    string descricao,
+    string tipo,
+    decimal valor,
+    DateTime data)
+{
+    Transacao transacao = new Transacao(descricao, tipo, valor, data);
+    _extrato.Add(transacao);
+}
 }

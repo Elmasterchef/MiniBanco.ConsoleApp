@@ -12,6 +12,15 @@ public class Transacao
         string descricao,
         string tipo,
         decimal valor)
+        : this(descricao, tipo, valor, DateTime.Now)
+    {
+    }
+
+    public Transacao(
+        string descricao,
+        string tipo,
+        decimal valor,
+        DateTime data)
     {
         if (string.IsNullOrWhiteSpace(descricao))
             throw new ArgumentException(
@@ -20,10 +29,11 @@ public class Transacao
 
         if (tipo != "Deposito" &&
             tipo != "Saque" &&
-            tipo != "Tarifa")
+            tipo != "Tarifa" &&
+            tipo != "Rendimento")
         {
             throw new ArgumentException(
-                "O tipo deve ser Deposito, Saque ou Tarifa.",
+                "O tipo deve ser Deposito, Saque, Tarifa ou Rendimento.",
                 nameof(tipo));
         }
 
@@ -35,19 +45,20 @@ public class Transacao
         Descricao = descricao;
         Tipo = tipo;
         Valor = valor;
-        Data = DateTime.Now;
+        Data = data;
     }
+
     public int Pontos
-{
-    get
     {
-        if (Tipo == "Deposito")
-            return 10;
+        get
+        {
+            if (Tipo == "Deposito")
+                return 10;
 
-        if (Tipo == "Saque")
-            return 5;
+            if (Tipo == "Saque")
+                return 5;
 
-        return 0;
+            return 0;
+        }
     }
-}
 }

@@ -458,4 +458,20 @@ public void ContaSalario_DeveRestaurarContadorDeSaquesMensais()
     Assert.Equal(3, conta.SaquesRealizadosNoMes);
 }
 
+[Fact]
+public void RestaurarTransacao_DevePreservarDataTipoEValorDoExtrato()
+{
+    var conta = new Conta("Rafael", 997);
+    var data = new DateTime(2026, 10, 25, 19, 57, 27);
+
+    conta.RestaurarTransacao("Tarifa mensal", "Tarifa", 10m, data);
+
+    var transacao = Assert.Single(conta.Extrato);
+    Assert.Equal("Tarifa mensal", transacao.Descricao);
+    Assert.Equal("Tarifa", transacao.Tipo);
+    Assert.Equal(10m, transacao.Valor);
+    Assert.Equal(data, transacao.Data);
+    Assert.Equal(0m, conta.Saldo);
+}
+
 }

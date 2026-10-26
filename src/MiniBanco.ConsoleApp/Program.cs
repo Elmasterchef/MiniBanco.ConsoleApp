@@ -57,11 +57,11 @@ while (executando)
             break;
 
         case "2":
-            RegistrarMovimentacao(contas);
+            await RegistrarMovimentacaoAsync(contas, repositorio);
             break;
 
         case "3":
-            AplicarFechamentoMensal(contas);
+            await AplicarFechamentoMensalAsync(contas, repositorio);
             break;
 
         case "4":
@@ -216,7 +216,10 @@ static async Task AbrirContaAsync(
 }
 
     
-static void RegistrarMovimentacao(List<Conta> contas)
+
+static async Task RegistrarMovimentacaoAsync(
+    List<Conta> contas,
+    ContaRepository repositorio)
 {
     Console.WriteLine();
     Console.WriteLine("=== REGISTRAR MOVIMENTAÇÃO ===");
@@ -235,22 +238,16 @@ static void RegistrarMovimentacao(List<Conta> contas)
         return;
     }
 
-    Conta? contaEncontrada = null;
+    int indiceConta = contas.FindIndex(conta => conta.Numero == numero);
 
-    foreach (Conta conta in contas)
-    {
-        if (conta.Numero == numero)
-        {
-            contaEncontrada = conta;
-            break;
-        }
-    }
-
-    if (contaEncontrada is null)
+    if (indiceConta < 0)
     {
         Console.WriteLine("Conta não encontrada.");
         return;
     }
+
+    Conta contaOriginal = contas[indiceConta];
+    Conta contaEncontrada = ClonarConta(contaOriginal);
 
     Console.WriteLine("1 - Depósito");
     Console.WriteLine("2 - Saque");
@@ -276,6 +273,11 @@ static void RegistrarMovimentacao(List<Conta> contas)
         return;
     }
 
+    decimal saldoAnterior = contaOriginal.Saldo;
+    int saquesRealizadosAnterior = contaOriginal is ContaSalario salarioOriginal
+        ? salarioOriginal.SaquesRealizadosNoMes
+        : 0;
+
     try
     {
         if (operacao == "1")
@@ -284,17 +286,31 @@ static void RegistrarMovimentacao(List<Conta> contas)
             string descricao = Console.ReadLine() ?? string.Empty;
 
             contaEncontrada.Depositar(valor, descricao);
-            Console.WriteLine("Depósito realizado com sucesso!");
         }
         else
         {
             contaEncontrada.Sacar(valor);
-            Console.WriteLine("Saque realizado com sucesso!");
         }
+
+        IReadOnlyList<Transacao> novasTransacoes = contaEncontrada.Extrato
+            .Skip(contaOriginal.Extrato.Count)
+            .ToList();
+
+        await repositorio.RegistrarMovimentacaoAsync(
+            contaEncontrada,
+            saldoAnterior,
+            novasTransacoes,
+            saquesRealizadosAnterior);
+
+        contas[indiceConta] = contaEncontrada;
+
+        Console.WriteLine(
+            operacao == "1"
+                ? "Depósito realizado e salvo com sucesso!"
+                : "Saque realizado e salvo com sucesso!");
 
         Console.WriteLine($"Saldo atual: {contaEncontrada.Saldo:C}");
     }
-    
     catch (SaldoInsuficienteException ex)
     {
         Console.WriteLine($"Saque não realizado: {ex.Message}");
@@ -307,10 +323,17 @@ static void RegistrarMovimentacao(List<Conta> contas)
     {
         Console.WriteLine($"Não foi possível realizar a operação: {ex.Message}");
     }
-
+    catch (NpgsqlException ex)
+    {
+        Console.WriteLine($"Erro ao persistir a movimentação: {ex.Message}");
+        Console.WriteLine("A movimentação não foi confirmada pelo banco.");
+    }
 }
 
-static void AplicarFechamentoMensal(List<Conta> contas)
+
+static async Task AplicarFechamentoMensalAsync(
+    List<Conta> contas,
+    ContaRepository repositorio)
 {
     Console.WriteLine();
     Console.WriteLine("=== FECHAMENTO MENSAL ===");
@@ -321,13 +344,34 @@ static void AplicarFechamentoMensal(List<Conta> contas)
         return;
     }
 
-    foreach (Conta conta in contas)
+    bool houveFalha = false;
+
+    for (int i = 0; i < contas.Count; i++)
     {
+        Conta contaOriginal = contas[i];
+        Conta conta = ClonarConta(contaOriginal);
+
         try
         {
-            decimal saldoAnterior = conta.Saldo;
+            decimal saldoAnterior = contaOriginal.Saldo;
+            int saquesRealizadosAnterior =
+                contaOriginal is ContaSalario salarioOriginal
+                    ? salarioOriginal.SaquesRealizadosNoMes
+                    : 0;
 
             conta.AplicarFechamentoMensal();
+
+            IReadOnlyList<Transacao> novasTransacoes = conta.Extrato
+                .Skip(contaOriginal.Extrato.Count)
+                .ToList();
+
+            await repositorio.RegistrarMovimentacaoAsync(
+                conta,
+                saldoAnterior,
+                novasTransacoes,
+                saquesRealizadosAnterior);
+
+            contas[i] = conta;
 
             Console.WriteLine();
             Console.WriteLine($"Conta: {conta.Numero} - {conta.Titular}");
@@ -337,18 +381,65 @@ static void AplicarFechamentoMensal(List<Conta> contas)
         }
         catch (ArgumentException ex)
         {
+            houveFalha = true;
             Console.WriteLine(
                 $"Erro na conta {conta.Numero}: {ex.Message}");
         }
         catch (InvalidOperationException ex)
         {
+            houveFalha = true;
             Console.WriteLine(
                 $"Erro na conta {conta.Numero}: {ex.Message}");
+        }
+        catch (NpgsqlException ex)
+        {
+            houveFalha = true;
+            Console.WriteLine(
+                $"Erro ao persistir o fechamento da conta {conta.Numero}: {ex.Message}");
         }
     }
 
     Console.WriteLine();
-    Console.WriteLine("Processamento do fechamento mensal concluído.");
+    Console.WriteLine(houveFalha
+        ? "Fechamento mensal concluído com falhas. Consulte os erros acima."
+        : "Processamento do fechamento mensal concluído.");
+}
+
+static Conta ClonarConta(Conta conta)
+{
+    Conta copia = conta switch
+    {
+        ContaCorrente corrente => new ContaCorrente(
+            corrente.Titular,
+            corrente.Numero,
+            corrente.Saldo,
+            corrente.LimiteChequeEspecial),
+        ContaPoupanca poupanca => new ContaPoupanca(
+            poupanca.Titular,
+            poupanca.Numero,
+            poupanca.Saldo,
+            poupanca.TaxaRendimentoMensal,
+            poupanca.DiaAniversario),
+        ContaSalario salario => new ContaSalario(
+            salario.Titular,
+            salario.Numero,
+            salario.Saldo,
+            salario.Empregador,
+            salario.LimiteSaquesMensais,
+            salario.SaquesRealizadosNoMes),
+        _ => new Conta(conta.Titular, conta.Numero, conta.Saldo)
+    };
+
+    foreach (Transacao transacao in conta.Extrato)
+    {
+        copia.RestaurarTransacao(
+            transacao.Descricao,
+            transacao.Tipo,
+            transacao.Valor,
+            transacao.Data);
+    }
+
+    return copia;
 }
 
 static void ExibirRelatorioContas(List<Conta> contas)

@@ -10,6 +10,9 @@ Implementar uma aplicação de console que permita cadastrar diferentes modalida
 
 - C#
 - .NET 10
+- PostgreSQL 17
+- Npgsql 10.0.3
+- Docker Compose
 - xUnit para testes automatizados
 - Git e GitHub
 
@@ -39,6 +42,10 @@ MiniBanco.ConsoleApp/
 │       └── Program.cs
 ├── tests/
 │   └── MiniBanco.Tests/
+├── scripts/
+│   ├── Database-Environment.ps1
+│   ├── Run-MiniBanco.ps1
+│   └── Test-MiniBanco.ps1
 ├── MiniBanco.slnx
 └── README.md
 ```
@@ -48,13 +55,15 @@ MiniBanco.ConsoleApp/
 - `Services/`: serviços de análise financeira.
 - `Program.cs`: menu e interação com o usuário.
 - `tests/`: testes automatizados.
+- `database/`: scripts de criação e evolução inicial do esquema PostgreSQL.
 
 ## Pré-requisitos
 
 - SDK do .NET 10 instalado.
+- Docker Desktop com Docker Compose.
 - Git, caso deseje clonar o repositório.
 
-## Como executar
+## Instalação e execução local (Windows PowerShell)
 
 Clone o repositório:
 
@@ -63,23 +72,41 @@ git clone https://github.com/Elmasterchef/MiniBanco.ConsoleApp.git
 cd MiniBanco.ConsoleApp
 ```
 
-Execute a aplicação a partir da raiz do projeto:
+Crie a configuração local do banco e substitua o valor de exemplo por uma senha sua em `.env`:
 
 ```powershell
-dotnet run --project .\src\MiniBanco.ConsoleApp\MiniBanco.ConsoleApp.csproj
+Copy-Item .env.example .env
+notepad .env
+```
+
+Inicie o PostgreSQL. O Compose publica o serviço em `127.0.0.1:5434` e, em um volume novo, executa os scripts SQL em ordem:
+
+```powershell
+docker compose up -d
+```
+
+Restaure e execute a aplicação. O script lê a senha de `.env` sem exibi-la e restaura as variáveis de ambiente ao sair:
+
+```powershell
+dotnet restore .\MiniBanco.slnx
+.\scripts\Run-MiniBanco.ps1
 ```
 
 Siga as opções apresentadas no menu do console.
 
-## Como executar os testes
+## Testes
 
-Na raiz do repositório, execute:
+Com o PostgreSQL ativo, execute o script na raiz do repositório. Ele lê a senha de `.env` sem exibi-la e configura as variáveis apenas durante os testes:
 
 ```powershell
-dotnet test .\MiniBanco.slnx
+.\scripts\Test-MiniBanco.ps1
 ```
 
-O comando compila a solução e executa os testes automatizados.
+Os testes de integração precisam alcançar o PostgreSQL. Além de verificar a conexão, comparam o extrato carregado pelo repositório com os registros existentes no banco; eles não criam nem removem dados. Os demais testes cobrem as regras de negócio.
+
+O script restaura as variáveis ao estado anterior quando termina.
+
+> O `.env` é lido pelo Docker Compose, não pela aplicação .NET. Em um volume já existente, alterar `POSTGRES_PASSWORD` no `.env` não troca a senha armazenada no PostgreSQL. Os scripts em `database/` são executados automaticamente somente quando o volume é inicializado vazio.
 
 ## Regras de análise financeira
 
@@ -100,9 +127,3 @@ O relatório também apresenta tarifas, saques e recomendações relacionadas à
 ## Controle de versão
 
 O desenvolvimento é organizado em uma branch de funcionalidades, com commits descritivos para registrar as etapas de implementação e correção.
-
-## Melhorias futuras
-
-- Ampliar a cobertura de testes para cenários-limite.
-- Avaliar a possibilidade de empacotamento e execução com Docker.
-- Evoluir a persistência de dados, caso seja necessário em versões futuras.
