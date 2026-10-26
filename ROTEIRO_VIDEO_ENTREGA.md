@@ -1,7 +1,7 @@
 # Roteiro de vídeo — MiniBanco.ConsoleApp
 
-**Duração sugerida:** 5 a 7 minutos
-**Formato:** apresentação com demonstração no terminal e no PostgreSQL
+**Duração sugerida:** 4 a 5 minutos
+**Foco:** contas, movimentações, fechamento mensal e análise financeira
 **Público:** avaliação acadêmica
 
 ## Antes de gravar
@@ -116,95 +116,63 @@ docker compose exec -T postgres dropdb -U minibanco_user $demoDb
 
 Não use `docker compose down -v`: isso removeria o volume persistente, não apenas o banco de demonstração.
 
-## 1. Apresentação — 0:00 a 0:30
+## Roteiro falado
+
+### 1. Apresentação — 0:00 a 0:20
 
 **Fala sugerida:**
 
-> Olá, vou apresentar o MiniBanco.ConsoleApp, um projeto acadêmico em C# e .NET 10. Ele simula contas bancárias, depósitos, saques e fechamento mensal, persiste os dados em PostgreSQL e apresenta um relatório de saúde financeira.
+> Olá, vou apresentar o MiniBanco.ConsoleApp. Ele permite trabalhar com diferentes tipos de conta, registrar operações bancárias e analisar a saúde financeira de cada conta.
 
-**Na tela:** mostre a estrutura da solução e o menu da aplicação.
+**Na tela:** mostre o menu principal.
 
-## 2. Arquitetura e decisões — 0:30 a 1:30
+### 2. Contas e regras — 0:20 a 1:10
 
 **Fala sugerida:**
 
-> A aplicação de console roda localmente. O Docker Compose executa o PostgreSQL 17 e publica a porta 5434 somente no endereço local. O acesso ao banco é feito com Npgsql 10.0.3.
+> O sistema oferece conta corrente, poupança e conta salário. Cada tipo tem suas próprias regras: a corrente pode usar cheque especial, a poupança recebe rendimento no fechamento e a conta salário controla a quantidade de saques mensais.
 >
-> Separei modelos de domínio, repositório, serviços de análise, exceções e testes. As variáveis de conexão são fornecidas ao processo por variáveis de ambiente. O `.env` é local, ignorado pelo Git, e os scripts PowerShell carregam a senha sem exibi-la.
+> As operações validam valores e limites antes de alterar o saldo. O extrato registra depósitos, saques, tarifas e rendimentos.
 
-**Na tela:** mostre `compose.yaml`, `ConexaoBanco.cs`, `ContaRepository.cs` e, rapidamente, as pastas `Models`, `Repositories`, `Services` e `tests`. Não abra `.env`.
+**Na tela:** mostre rapidamente os tipos de conta no código e volte ao menu.
 
-**Decisões importantes para explicar:**
-
-- O Compose mantém os dados no volume `minibanco_data`, permitindo reiniciar ou recriar o contêiner sem remover o banco.
-- Os scripts SQL de inicialização são aplicados automaticamente quando o volume está vazio; mudar o `.env` não troca a senha já gravada em um volume existente.
-- O saldo e as movimentações de uma operação são atualizados dentro de uma transação PostgreSQL. Se uma etapa falhar, a transação não deve deixar saldo e extrato divergentes.
-- A atualização verifica também o saldo anterior para detectar alteração concorrente da mesma conta.
-- Ao iniciar, o repositório recupera as contas e o extrato persistido, incluindo a data original das transações.
-
-## 3. Como iniciar — 1:30 a 2:00
+### 3. Demonstração das operações — 1:10 a 2:50
 
 **Fala sugerida:**
 
-> Para preparar uma máquina nova, crio o `.env` a partir do exemplo, defino uma senha local e inicio o banco com Docker Compose. Depois executo a aplicação pelo script, que configura as variáveis de conexão apenas durante o processo.
+> Para demonstrar, vou abrir uma conta corrente com saldo inicial de 100 reais. Depois faço um depósito de 50 e um saque de 20. O saldo fica em 130 reais.
+>
+> No fechamento mensal, esta conta recebe uma tarifa de 10 reais. O saldo final passa para 120 reais. A aplicação confirma cada operação e atualiza o extrato.
 
-**Na tela:** mostre os comandos no README, sem abrir o arquivo com a senha:
+**Na tela:** siga as entradas das seções “Criar a conta de demonstração”, “Registrar depósito e saque” e “Aplicar o fechamento mensal”.
+
+> **Atenção:** faça o fechamento mensal somente no banco isolado de demonstração. Essa opção processa todas as contas carregadas.
+
+### 4. Extrato e análise financeira — 2:50 a 4:00
+
+**Fala sugerida:**
+
+> Agora vou reiniciar a aplicação para mostrar que os dados permanecem salvos. No relatório, vemos o saldo de 120 reais e as três operações do extrato.
+>
+> O sistema calcula uma pontuação e classifica a saúde financeira como saudável, atenção ou risco. Tarifas aparecem como itens críticos, saques como itens de atenção e o relatório apresenta recomendações para a conta.
+
+**Na tela:** reinicie no mesmo banco, escolha `4` e mostre o saldo, o extrato, a classificação e as recomendações.
+
+### 5. Decisões e encerramento — 4:00 a 4:40
+
+**Fala sugerida:**
+
+> A aplicação guarda os dados no PostgreSQL e mantém o saldo e o extrato consistentes usando transações. O Docker Compose facilita iniciar o banco localmente; a apresentação de hoje ficou concentrada nas funções do MiniBanco.
+>
+> A solução também tem testes unitários e de integração. Na validação realizada, os 31 testes passaram. Obrigado por assistir à apresentação.
+
+**Na tela:** mostre brevemente o resumo dos testes e finalize.
+
+## Comandos para iniciar durante a gravação
 
 ```powershell
-Copy-Item .env.example .env
-docker compose config --quiet
 docker compose up -d
 docker compose ps
 dotnet restore .\MiniBanco.slnx
-.\scripts\Run-MiniBanco.ps1
-```
-
-## 4. Demonstração de operações — 2:00 a 3:30
-
-**Fala sugerida:**
-
-> Vou usar um banco isolado para que a demonstração não altere contas reais. Abro uma conta corrente com saldo inicial de 100 reais, deposito 50 e saco 20. O saldo passa para 130 reais.
->
-> Em seguida aplico o fechamento mensal. Para esta conta corrente, a tarifa de manutenção é de 10 reais, então o saldo final fica em 120 reais. Cada movimentação aparece no extrato.
-
-**Na tela:** siga as tabelas da seção “Passo a passo da gravação”, demonstre a abertura, o depósito, o saque e o fechamento mensal. Use somente dados fictícios e mostre as confirmações e os saldos exibidos.
-
-> **Atenção durante a gravação:** o fechamento mensal percorre todas as contas carregadas. Faça esta etapa em um banco de demonstração isolado, nunca no banco persistente com contas que não devem ser alteradas.
-
-## 5. Persistência e relatório — 3:30 a 4:30
-
-**Fala sugerida:**
-
-> Consultei o PostgreSQL e confirmei o saldo de 120 reais e três movimentações: depósito de 50, saque de 20 e tarifa de 10. Depois fechei e reabri a aplicação. O relatório recuperou a conta e as três transações do banco, mostrando também a tarifa como item crítico e o saque como item de atenção.
-
-**Na tela:** mostre o resultado consultado no banco ou o relatório da aplicação após reiniciar. No cenário demonstrado, a pontuação foi de 15 em 30 e a classificação ficou em “Conta em Risco”.
-
-## 6. Testes e encerramento — 4:30 a 5:30
-
-**Fala sugerida:**
-
-> A solução tem testes unitários para as regras de negócio e testes de integração que precisam do PostgreSQL ativo. A suíte executada neste projeto passou com 31 testes aprovados, sem falhas ou testes ignorados. O build da solução também concluiu com sucesso.
->
-> O guia no README explica como iniciar, testar e parar os serviços. O comando `docker compose down` preserva o volume; `docker compose down -v` remove os dados, então não deve ser usado quando a intenção é manter o banco.
->
-> Com isso, concluo a apresentação do MiniBanco.ConsoleApp.
-
-**Na tela:** mostre o resumo do teste e finalize no README ou no menu da aplicação.
-
-## Comandos de referência
-
-```powershell
-# Banco
-docker compose up -d
-docker compose ps
-
-# Aplicação e testes
-.\scripts\Run-MiniBanco.ps1
-.\scripts\Test-MiniBanco.ps1
-
-# Parar sem remover os dados
-docker compose stop
-
-# Remover o contêiner preservando o volume
-docker compose down
+.\scripts\Run-MiniBanco.ps1 -DatabaseName $demoDb
 ```
