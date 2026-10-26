@@ -21,7 +21,7 @@ public class ContaPoupanca : Conta
         if (saldoInicial < 0)
     throw new ArgumentOutOfRangeException(
         nameof(saldoInicial),
-        "O saldo inicial da poupança não pode ser negativo.");        
+        "O saldo inicial da poupança não pode ser negativo.");
 
         if (diaAniversario < 1 || diaAniversario > 31)
             throw new ArgumentOutOfRangeException(
