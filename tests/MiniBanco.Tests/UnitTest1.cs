@@ -411,5 +411,67 @@ public void MotorAnalise_ContaEmRisco_DeveRecomendarAnaliseDeCredito()
         "Realizar uma análise de crédito.",
         recomendacoes);
 }
+[Fact]
+public void ContaCorrente_ComSaldoNegativo_DevePermitirReconstrucao()
+{
+    var conta = new ContaCorrente(
+        titular: "Rafael",
+        numero: 999,
+        saldoInicial: -150m,
+        limiteChequeEspecial: 200m);
+
+    Assert.Equal(-150m, conta.Saldo);
+}
+[Fact]
+public void ContaPoupanca_ComSaldoInicialNegativo_DeveLancarExcecao()
+{
+    Assert.Throws<ArgumentOutOfRangeException>(() =>
+        new ContaPoupanca(
+            titular: "Rafael",
+            numero: 998,
+            saldoInicial: -100m,
+            taxaRendimentoMensal: 1.0,
+            diaAniversario: 10));
+}
+[Fact]
+public void ContaSalario_ComSaldoInicialNegativo_DeveLancarExcecao()
+{
+    Assert.Throws<ArgumentOutOfRangeException>(() =>
+        new ContaSalario(
+            titular: "Rafael",
+            numero: 997,
+            saldoInicial: -100m,
+            empregador: "Empresa Teste",
+            limiteSaquesMensais: 5));
+}
+[Fact]
+public void ContaSalario_DeveRestaurarContadorDeSaquesMensais()
+{
+    var conta = new ContaSalario(
+        titular: "Rafael",
+        numero: 996,
+        saldoInicial: 100m,
+        empregador: "Empresa Teste",
+        limiteSaquesMensais: 5,
+        saquesRealizadosNoMes: 3);
+
+    Assert.Equal(3, conta.SaquesRealizadosNoMes);
+}
+
+[Fact]
+public void RestaurarTransacao_DevePreservarDataTipoEValorDoExtrato()
+{
+    var conta = new Conta("Rafael", 997);
+    var data = new DateTime(2026, 10, 25, 19, 57, 27);
+
+    conta.RestaurarTransacao("Tarifa mensal", "Tarifa", 10m, data);
+
+    var transacao = Assert.Single(conta.Extrato);
+    Assert.Equal("Tarifa mensal", transacao.Descricao);
+    Assert.Equal("Tarifa", transacao.Tipo);
+    Assert.Equal(10m, transacao.Valor);
+    Assert.Equal(data, transacao.Data);
+    Assert.Equal(0m, conta.Saldo);
+}
 
 }
