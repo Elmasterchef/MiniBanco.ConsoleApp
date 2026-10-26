@@ -63,6 +63,85 @@ MiniBanco.ConsoleApp/
 - Docker Desktop com Docker Compose.
 - Git, caso deseje clonar o repositório.
 
+## Banco de dados com Docker Compose
+
+O Docker Compose executa o PostgreSQL 17 em um contêiner chamado `minibanco-postgres`. A aplicação de console continua sendo executada localmente pelo .NET e acessa o banco pela porta `5434`.
+
+Na primeira execução, crie o arquivo local `.env` a partir do exemplo e defina uma senha para o PostgreSQL:
+
+```powershell
+Copy-Item .env.example .env
+notepad .env
+```
+
+O arquivo `.env` é local e não deve ser enviado ao Git. Em seguida, valide a configuração e inicie o banco:
+
+```powershell
+docker compose config --quiet
+docker compose up -d
+```
+
+Confira se o serviço está saudável:
+
+```powershell
+docker compose ps
+```
+
+O estado deve aparecer como `healthy`. Se precisar acompanhar a inicialização, consulte os logs:
+
+```powershell
+docker compose logs -f postgres
+```
+
+Pressione `Ctrl+C` para sair da visualização dos logs; isso não para o contêiner. O Compose cria o banco `minibanco`, o usuário `minibanco_user` e publica o acesso em `127.0.0.1:5434`. Em um volume novo, os arquivos de `database/` são executados automaticamente para criar e evoluir o esquema.
+
+### Executar a aplicação e os testes
+
+Com o PostgreSQL saudável, execute a aplicação:
+
+```powershell
+dotnet restore .\MiniBanco.slnx
+.\scripts\Run-MiniBanco.ps1
+```
+
+O script lê `POSTGRES_PASSWORD` do `.env` sem mostrá-la e configura as variáveis de conexão apenas durante a execução. Para executar os testes unitários e de integração:
+
+```powershell
+.\scripts\Test-MiniBanco.ps1
+```
+
+Os testes de integração precisam do contêiner em execução e com a senha correspondente à já configurada no PostgreSQL.
+
+### Parar e preservar os dados
+
+Para parar os serviços mantendo o contêiner e os dados:
+
+```powershell
+docker compose stop
+```
+
+Para iniciar novamente:
+
+```powershell
+docker compose start
+```
+
+Também é possível remover o contêiner sem remover o volume persistente:
+
+```powershell
+docker compose down
+```
+
+Depois de `down`, recrie e inicie o contêiner mantendo o volume existente com:
+
+```powershell
+docker compose up -d
+```
+
+Os dados ficam no volume Docker `minibanco_data` e permanecem após `stop`, `start` e `down`. **Não use `docker compose down -v` se quiser preservar o banco**, pois essa opção remove o volume e os dados armazenados nele.
+
+Os scripts de `database/` são executados automaticamente somente na primeira inicialização de um volume vazio. Alterar `POSTGRES_PASSWORD` no `.env` também não troca a senha de um usuário que já existe no volume; a senha precisa corresponder à credencial configurada no PostgreSQL.
+
 ## Instalação e execução local (Windows PowerShell)
 
 Clone o repositório:
@@ -72,14 +151,14 @@ git clone https://github.com/Elmasterchef/MiniBanco.ConsoleApp.git
 cd MiniBanco.ConsoleApp
 ```
 
-Crie a configuração local do banco e substitua o valor de exemplo por uma senha sua em `.env`:
+Crie a configuração local do banco e substitua o valor de exemplo por uma senha sua em `.env` (detalhes na seção [Banco de dados com Docker Compose](#banco-de-dados-com-docker-compose)):
 
 ```powershell
 Copy-Item .env.example .env
 notepad .env
 ```
 
-Inicie o PostgreSQL. O Compose publica o serviço em `127.0.0.1:5434` e, em um volume novo, executa os scripts SQL em ordem:
+Inicie o PostgreSQL:
 
 ```powershell
 docker compose up -d
@@ -106,7 +185,7 @@ Os testes de integração precisam alcançar o PostgreSQL. Além de verificar a 
 
 O script restaura as variáveis ao estado anterior quando termina.
 
-> O `.env` é lido pelo Docker Compose, não pela aplicação .NET. Em um volume já existente, alterar `POSTGRES_PASSWORD` no `.env` não troca a senha armazenada no PostgreSQL. Os scripts em `database/` são executados automaticamente somente quando o volume é inicializado vazio.
+> O Compose usa `.env` para configurar o contêiner; os scripts PowerShell também leem `POSTGRES_PASSWORD` desse arquivo para configurar a conexão da aplicação .NET.
 
 ## Regras de análise financeira
 
