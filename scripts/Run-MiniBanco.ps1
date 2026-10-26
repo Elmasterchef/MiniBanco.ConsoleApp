@@ -1,3 +1,8 @@
+param(
+    [ValidatePattern('^[a-z][a-z0-9_]{0,62}$')]
+    [string]$DatabaseName = 'minibanco'
+)
+
 $environmentNames = @(
     'MINIBANCO_DB_HOST',
     'MINIBANCO_DB_PORT',
@@ -21,7 +26,7 @@ $appExitCode = 1
 try {
     $env:MINIBANCO_DB_HOST = '127.0.0.1'
     $env:MINIBANCO_DB_PORT = '5434'
-    $env:MINIBANCO_DB_NAME = 'minibanco'
+    $env:MINIBANCO_DB_NAME = $DatabaseName
     $env:MINIBANCO_DB_USER = 'minibanco_user'
     $env:MINIBANCO_DB_PASSWORD = $databasePassword
 

@@ -173,6 +173,12 @@ dotnet restore .\MiniBanco.slnx
 
 Siga as opções apresentadas no menu do console.
 
+O script usa `minibanco` por padrão. Para executar a aplicação em outro banco local já preparado, informe o nome (somente letras minúsculas, números e `_`):
+
+```powershell
+.\scripts\Run-MiniBanco.ps1 -DatabaseName minibanco_demo
+```
+
 ## Testes
 
 Com o PostgreSQL ativo, execute o script na raiz do repositório. Ele lê a senha de `.env` sem exibi-la e configura as variáveis apenas durante os testes:
